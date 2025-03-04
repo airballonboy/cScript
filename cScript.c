@@ -17,6 +17,8 @@ char *shift_args(int *argc, char ***argv) {
 int main(int argc, char** argv) 
 {
 	struct timespec start,end;
+	const char* executableName = "cScriptOutput";
+	char executeCommend[50];
 	char command[400];
 	char flags[300];
     const char *program = shift_args(&argc, &argv);
@@ -44,10 +46,10 @@ int main(int argc, char** argv)
 	// Checks if file is C or Cpp 
 	if (strstr(firstArg, ".cpp") != NULL){
 		// Adds the file name to the command
-		sprintf(command, "g++ %s -o out ", firstArg);
+		sprintf(command, "g++ %s -o %s ", firstArg, executableName);
 	}else if (strstr(firstArg, ".c") != NULL){
 		// Adds the file name to the command
-		sprintf(command, "gcc %s -o out ", firstArg);
+		sprintf(command, "gcc %s -o %s ", firstArg, executableName);
 	}
 
 	// Adds every flag to the flags string
@@ -66,7 +68,8 @@ int main(int argc, char** argv)
 
 	// Adds the flags and the opening and deleting file to the command
 	strcat(command, flags);
-	strcat(command, " && ./out && rm ./out");
+	sprintf(executeCommend, " && ./%s && rm ./%s", executableName, executableName);
+	strcat(command, executeCommend);
 
 	//execute the finale command
 	system(command);

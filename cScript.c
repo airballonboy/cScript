@@ -1,3 +1,6 @@
+#include <bits/time.h>
+#include <sys/types.h>
+#include <time.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -13,6 +16,8 @@ char *shift_args(int *argc, char ***argv) {
 
 int main(int argc, char** argv) 
 {
+	struct timespec start,end;
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	char command[400];
 	char flags[300];
     const char *program = shift_args(&argc, &argv);
@@ -34,8 +39,14 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	// Adds the file name to the command
-	sprintf(command, "gcc %s -o out ", firstArg);
+	// Checks if file is C or Cpp 
+	if (strstr(firstArg, ".cpp") != NULL){
+		// Adds the file name to the command
+		sprintf(command, "g++ %s -o out ", firstArg);
+	}else if (strstr(firstArg, ".c") != NULL){
+		// Adds the file name to the command
+		sprintf(command, "gcc %s -o out ", firstArg);
+	}
 
 	// Adds every flag to the flags string
 	for (;argc > 0;) {
@@ -58,5 +69,7 @@ int main(int argc, char** argv)
 	//execute the finale command
 	system(command);
 
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	printf("timeUsed: %lfms\n", ((end.tv_sec - start.tv_sec) *1000 + (end.tv_nsec - start.tv_nsec) /1.0e6));
 	return 0;
 }

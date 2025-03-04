@@ -6,16 +6,12 @@ set(CMAKE_BUILD_TYPE Debug)
 project(cScript)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+	"${CMAKE_CURRENT_SOURCE_DIR}/cScript.c"
 )
 
 add_executable("${CMAKE_PROJECT_NAME}" ${MY_SOURCES})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc")
-
-target_include_directories("${CMAKE_PROJECT_NAME}"
-						   PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/"
-)
 
 #create sim link for compile_commands.json
 execute_process(

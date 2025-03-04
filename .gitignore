@@ -1,0 +1,11 @@
+.cache/
+/.vs
+.idea/
+bin/
+build/
+/out
+
+Makefile
+CMakeSettings.json
+compile_commands.json
+imgui.ini

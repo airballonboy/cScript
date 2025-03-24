@@ -1,5 +1,3 @@
-#include <bits/time.h>
-#include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
 #include <assert.h>

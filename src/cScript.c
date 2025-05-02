@@ -1,25 +1,18 @@
 #include <time.h>
 #include <stdio.h>
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
+#include "scriptCompile.h"
+#include "utils.h"
+#include "publics.h"
 
-char *shift_args(int *argc, char ***argv) {
-	if (!(*argc > 0)) exit(-1);
-    char *result = (**argv);
-    (*argv) += 1;
-    (*argc) -= 1;
-    return result;
-}
 
 int main(int argc, char** argv) 
 {
 	struct timespec start,end;
-	const char* executableName = "cScriptOutput";
-	char executeCommend[50];
-	char command[400];
-	char flags[300];
     const char *program = shift_args(&argc, &argv);
+	const char **flagsArray;
+	int flagCount;
 
 	// Get start time
 	clock_gettime(CLOCK_MONOTONIC, &start);
@@ -36,22 +29,13 @@ int main(int argc, char** argv)
 	strcpy(firstArg, shift_args(&argc, &argv));
 
 	// Checks if firstArg starts with --
-	if (strncmp(firstArg, "--", 2) == 0){
+	if (strncmp(firstArg, "--", 2) == 0) {
 		// TODO: check the command
 		return 0;
 	}
-
-	// Checks if file is C or Cpp 
-	if (strstr(firstArg, ".cpp") != NULL){
-		// Adds the file name to the command
-		sprintf(command, "g++ %s -o %s ", firstArg, executableName);
-	}else if (strstr(firstArg, ".c") != NULL){
-		// Adds the file name to the command
-		sprintf(command, "gcc %s -o %s ", firstArg, executableName);
-	}
-
+	
 	// Adds every flag to the flags string
-	for (;argc > 0;) {
+	for (flagCount = 0; argc > 0; flagCount++) {
 		char arg[20];
 		strcpy(arg, shift_args(&argc, &argv));
 		
@@ -61,16 +45,10 @@ int main(int argc, char** argv)
 			continue;
 		}
 
-		strcat(flags, arg);
+		flagsArray[flagCount] = arg;
 	}
-
-	// Adds the flags and the opening and deleting file to the command
-	strcat(command, flags);
-	sprintf(executeCommend, " && ./%s && rm ./%s", executableName, executableName);
-	strcat(command, executeCommend);
-
-	//execute the finale command
-	system(command);
+	compileFile(firstArg, flagsArray, flagCount);
+	executeAndDelete(executableName);
 
 	// Print elapsed time
 	clock_gettime(CLOCK_MONOTONIC, &end);

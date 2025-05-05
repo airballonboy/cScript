@@ -1,0 +1,92 @@
+#pragma once
+#include <fstream>
+#include <unordered_map>
+#include <unordered_set>
+#include <string>
+
+void initFile(std::ofstream* outFile);
+
+std::string getUserInput();
+// Map keywords to headers (improved substring checks)
+static std::unordered_map<std::string, std::unordered_set<std::string>> header_features = {
+    {"<cassert>", {"assert"}},
+    {"<cctype>", {"isalpha", "isdigit", "toupper", "tolower", "isspace"}},
+    {"<cerrno>", {"errno"}},
+    {"<cfenv>", {"fenv_t", "fegetround", "fesetround"}},
+    {"<cfloat>", {"FLT_MIN", "FLT_MAX", "DBL_EPSILON"}},
+    {"<cinttypes>", {"intmax_t", "PRId64", "PRIu64"}},
+    {"<climits>", {"INT_MAX", "INT_MIN", "CHAR_BIT"}},
+    {"<clocale>", {"setlocale", "localeconv"}},
+    {"<cmath>", {"std::sqrt", "std::sin", "std::cos", "std::pow", "std::log", "std::ceil", "std::floor"}},
+    {"<csetjmp>", {"jmp_buf", "setjmp", "longjmp"}},
+    {"<csignal>", {"signal", "SIGINT", "raise"}},
+    {"<cstdarg>", {"va_list", "va_start", "va_arg"}},
+    {"<cstdbool>", {"bool", "true", "false"}},
+    {"<cstddef>", {"NULL", "size_t", "ptrdiff_t"}},
+    {"<cstdint>", {"int32_t", "uint64_t", "int_fast16_t"}},
+    {"<cstdio>", {"printf", "scanf", "fopen", "fclose", "fprintf", "sprintf", "snprintf"}},
+    {"<cstdlib>", {"malloc", "free", "atoi", "atof", "rand", "srand", "exit", "EXIT_SUCCESS"}},
+    {"<cstring>", {"memcpy", "memset", "strlen", "strcmp", "strncpy"}},
+    {"<ctime>", {"time_t", "clock", "time", "ctime", "strftime"}},
+    {"<cwchar>", {"wchar_t", "wcslen", "wprintf"}},
+    {"<cwctype>", {"iswalpha", "towupper", "iswdigit"}},
+    {"<type_traits>", {"std::is_integral", "std::enable_if", "std::remove_reference"}},
+    {"<utility>", {"std::pair", "std::move", "std::forward", "std::swap"}},
+    {"<array>", {"std::array", "data", "size", "fill"}},
+    {"<vector>", {"std::vector", "push_back", "emplace_back", "reserve", "capacity"}},
+    {"<deque>", {"std::deque", "push_front", "pop_front", "shrink_to_fit"}},
+    {"<forward_list>", {"std::forward_list", "insert_after", "splice_after"}},
+    {"<list>", {"std::list", "merge", "sort", "unique"}},
+    {"<set>", {"std::set", "insert", "find", "lower_bound"}},
+    {"<unordered_set>", {"std::unordered_set", "bucket_count", "load_factor"}},
+    {"<map>", {"std::map", "operator[]", "emplace", "count"}},
+    {"<unordered_map>", {"std::unordered_map", "bucket", "reserve"}},
+    {"<stack>", {"std::stack", "push", "pop", "top"}},
+    {"<queue>", {"std::queue", "front", "back", "priority_queue"}},
+    {"<span>", {"std::span", "size_bytes", "subspan"}},
+    {"<iterator>", {"std::begin", "std::end", "std::advance", "std::distance"}},
+    {"<algorithm>", {"std::sort", "std::find", "std::reverse", "std::count", "std::transform"}},
+    {"<numeric>", {"std::accumulate", "std::inner_product", "std::iota", "std::gcd"}},
+    {"<functional>", {"std::function", "std::bind", "std::ref", "std::placeholders"}},
+    {"<complex>", {"std::complex", "real", "imag", "std::polar"}},
+    {"<random>", {"std::mt19937", "std::uniform_int_distribution", "std::normal_distribution"}},
+    {"<bitset>", {"std::bitset", "test", "set", "reset"}},
+    {"<bit>", {"std::popcount", "std::rotl", "std::byteswap"}},
+    {"<string>", {"std::string", "stoi", "substr", "find", "append", "c_str"}},
+    {"<string_view>", {"std::string_view", "remove_prefix", "starts_with"}},
+    {"<sstream>", {"std::stringstream", "std::ostringstream", "str", "clear"}},
+    {"<iomanip>", {"std::setw", "std::setprecision", "std::hex", "std::fixed"}},
+    {"<regex>", {"std::regex", "std::smatch", "std::regex_search", "std::regex_replace"}},
+    {"<ios>", {"std::ios_base", "precision", "width", "setf"}},
+    {"<iosfwd>", {"std::ostream", "std::istream", "std::fstream"}},
+    {"<iostream>", {"std::cout", "std::cin", "std::cerr", "std::endl"}},
+    {"<istream>", {"std::istream", "operator>>", "get", "ignore"}},
+    {"<ostream>", {"std::ostream", "operator<<", "put", "write"}},
+    {"<fstream>", {"std::ofstream", "std::ifstream", "open", "close"}},
+    {"<streambuf>", {"std::streambuf", "pubsetbuf", "sputc", "sgetn"}},
+    {"<thread>", {"std::thread", "join", "detach", "std::this_thread::sleep_for"}},
+    {"<mutex>", {"std::mutex", "lock", "unlock", "std::lock_guard"}},
+    {"<shared_mutex>", {"std::shared_mutex", "lock_shared", "unlock_shared"}},
+    {"<atomic>", {"std::atomic", "load", "store", "exchange"}},
+    {"<future>", {"std::promise", "std::future", "std::async", "std::shared_future"}},
+    {"<condition_variable>", {"std::condition_variable", "wait", "notify_one", "notify_all"}},
+    {"<memory>", {"std::unique_ptr", "std::shared_ptr", "std::make_shared", "std::allocator"}},
+    {"<chrono>", {"std::chrono::seconds", "std::chrono::system_clock", "std::chrono::duration_cast"}},
+    {"<filesystem>", {"std::filesystem::path", "exists", "create_directory", "last_write_time"}},
+    {"<exception>", {"std::exception", "std::terminate", "std::uncaught_exceptions"}},
+    {"<stdexcept>", {"std::runtime_error", "std::out_of_range", "std::invalid_argument"}},
+    {"<stdio.h>", {"printf", "scanf", "fopen", "fclose", "sprintf", "fgets"}},
+    {"<stdlib.h>", {"malloc", "free", "atoi", "rand", "exit", "system"}},
+    {"<string.h>", {"memcpy", "memset", "strlen", "strcat", "strtok"}},
+    {"<math.h>", {"sqrt", "pow", "sin", "cos", "tan", "fabs"}},
+    {"<assert.h>", {"assert"}},
+    {"<ctype.h>", {"isalnum", "isdigit", "toupper", "tolower"}},
+    {"<errno.h>", {"errno", "EINVAL", "EDOM"}},
+    {"<time.h>", {"time", "clock", "ctime", "strftime", "tm"}},
+    {"<limits.h>", {"INT_MAX", "LONG_MIN", "CHAR_BIT"}},
+    {"<float.h>", {"FLT_MAX", "DBL_EPSILON", "DECIMAL_DIG"}}
+};
+
+static std::unordered_set<std::string> needed_headers;
+
+static std::string mainFunc = "int main(){ \n";

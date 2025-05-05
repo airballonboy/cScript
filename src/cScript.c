@@ -5,6 +5,7 @@
 #include "scriptCompile.h"
 #include "utils.h"
 #include "publics.h"
+#include "repl.h"
 
 
 int main(int argc, char** argv) 
@@ -22,7 +23,8 @@ int main(int argc, char** argv)
         fprintf(stderr, "Usage: %s <input> <flags> \n", program);
 		fprintf(stdout, "Hint: try --help to know how %s works\n", program);
         fprintf(stderr, "ERROR: no input file is provided\n");
-        return 1;
+        replLoop();
+		return 1;
     }
 
 	char firstArg[50];
